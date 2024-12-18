@@ -47,7 +47,7 @@
       padding: 12px 20px;
       border: none;
       border-radius: 8px;
-      background: #4caf50;
+      background: #4a90e2; /* Blue button background */
       color: #ffffff;
       cursor: pointer;
       font-size: 16px;
@@ -55,7 +55,7 @@
       transition: background 0.3s ease;
     }
     button:hover {
-      background: #087f23;
+      background: #0061cc; /* Darker blue on hover */
     }
   </style>
 </head>
@@ -73,9 +73,19 @@
 
     document.getElementById('submit-reading').addEventListener('click', () => {
       const reading = document.getElementById('reading').value;
-      alert(`Reading submitted: ${reading}`);
-      // Submit logic can be added here
+      if (reading) {
+        alert(`Reading submitted: ${reading}`);
+        // Submit logic can be added here
+
+        // Redirect back to the QR scanner page after submitting
+        window.location.href = 'qrscanner.html'; // Make sure qrscanner.html exists and is the correct path
+      } else {
+        alert('Please enter a valid reading.');
+      }
     });
   </script>
 </body>
 </html>
+
+
+
