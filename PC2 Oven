@@ -64,7 +64,7 @@
   <button id="submit-reading">Submit Reading</button>
 
   <script>
-    const apiUrl = 'https://your-api-gateway-endpoint.amazonaws.com/prod/meter-reading'; // Replace with your API Gateway endpoint
+    const apiUrl = 'https://i41pwdl3w0.execute-api.us-east-1.amazonaws.com/default/SendMeterReading'; // Replace with your API Gateway endpoint
 
     document.getElementById('submit-reading').addEventListener('click', async () => {
       const reading = document.getElementById('reading').value;
