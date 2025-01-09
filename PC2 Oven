@@ -3,99 +3,287 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enter Meter Reading - PC2 Oven</title>
+  <title>MeterReader+ - PC2 Oven</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --background-color: #F5F5F7;
+      --card-background: #FFFFFF;
+      --text-primary: #1D1D1F;
+      --text-secondary: #86868B;
+      --accent-color: #007AFF;
+      --border-color: #E5E5E5;
+      --header-background: #F1F1F1; /* Light grey */
+      --header-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px; /* Subtle shadow for premium look */
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #ffffff;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Arial, sans-serif;
+      background: var(--background-color);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      background: var(--header-background);
+      box-shadow: var(--header-shadow);
+    }
+
+    .branding {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .user-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .logout-button {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      margin-top: 4rem;
     }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #222222;
-    }
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #555555;
-    }
-    input {
+
+    .container {
+      background: var(--card-background);
+      padding: 3rem;
+      border-radius: 20px;
       width: 90%;
-      max-width: 400px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #cccccc;
+      max-width: 440px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      font-size: 17px;
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--background-color);
+      color: var(--text-primary);
+      font-size: 17px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
       outline: none;
-      background: #f9f9f9;
-      color: #333333;
-      font-size: 16px;
-      margin-bottom: 15px;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
     }
+
     input::placeholder {
-      color: #888888;
+      color: var(--text-secondary);
     }
+
     button {
-      padding: 12px 20px;
+      width: 100%;
+      padding: 1.2rem;
       border: none;
-      border-radius: 8px;
-      background: #4caf50;
-      color: #ffffff;
+      border-radius: 12px;
+      background: var(--accent-color);
+      color: white;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 600;
-      transition: background 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+
     button:hover {
-      background: #087f23;
+      background: #0066DD;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
 <body>
-  <h1>Enter Meter Reading</h1>
-  <p>PC2 Oven</p>
-  <input type="number" id="reading" placeholder="Enter new reading" />
-  <button id="submit-reading">Submit Reading</button>
+  <div class="header">
+    <div class="branding">MeterReader+</div>
+    <div id="user-section">
+      <!-- User info and logout button will go here -->
+    </div>
+  </div>
+  
+  <div class="main-container" id="main-content">
+    <!-- Content will be dynamically inserted here -->
+  </div>
 
   <script>
-    const apiUrl = 'https://i41pwdl3w0.execute-api.us-east-1.amazonaws.com/default/SendMeterReading'; // Replace with your API Gateway endpoint
+    const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
+    const currentOven = 'PC2 Oven';
 
-    document.getElementById('submit-reading').addEventListener('click', async () => {
-      const reading = document.getElementById('reading').value;
-      if (reading) {
+    const users = [
+      { username: 'admin', password: 'admin', name: 'Admin' }
+    ];
+    let currentUser = null;
+
+    function showLoginForm() {
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = `
+        <div class="container login-container">
+          <h1>Sign In</h1>
+          <p>Enter your credentials to continue</p>
+          <div class="input-group">
+            <input type="text" id="username" placeholder="Username" autocomplete="username" />
+          </div>
+          <div class="input-group">
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+          </div>
+          <button id="login-button">Sign In</button>
+        </div>
+      `;
+      document.getElementById('login-button').addEventListener('click', handleLogin);
+    }
+
+    function showMeterReader() {
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = `
+        <div class="container">
+          <h1>Enter Meter Reading for ${currentOven}</h1>
+          <div class="input-group">
+            <input type="number" id="reading" placeholder="Enter new reading" autocomplete="off" />
+          </div>
+          <button id="submit-reading">Submit Reading</button>
+          <p id="success-message" style="display: none; color: green; font-weight: bold;"></p>
+        </div>
+      `;
+
+      document.getElementById('submit-reading').addEventListener('click', async () => {
+        const reading = document.getElementById('reading').value;
+        if (!reading) {
+          alert('Please enter a reading');
+          return;
+        }
+
         try {
+          const payload = {
+            meter: currentOven,
+            reading: parseFloat(reading),
+            timestamp: new Date().toISOString()
+          };
+
           const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              meterId: 'PC2 Oven',
-              reading: parseFloat(reading),
-              timestamp: new Date().toISOString()
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
           });
 
           if (response.ok) {
-            alert('Reading submitted successfully!');
-            window.location.href = 'qrscanner.html';
+            document.getElementById('success-message').innerText = `Reading submitted for ${currentOven}!`;
+            document.getElementById('success-message').style.display = 'block';
           } else {
-            const error = await response.json();
-            alert(`Error submitting reading: ${error.message || 'Unknown error'}`);
+            alert('Failed to submit the reading');
           }
         } catch (error) {
-          alert(`Network error: ${error.message}`);
+          alert('Error while submitting the reading');
         }
+      });
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        currentUser = user;
+        updateUserSection();
+        showMeterReader();
       } else {
-        alert('Please enter a reading');
+        alert('Invalid credentials');
       }
-    });
+    }
+
+    function updateUserSection() {
+      const userSection = document.getElementById('user-section');
+      userSection.innerHTML = `
+        <div class="user-info">
+          <span class="user-name">${currentUser.name}</span>
+          <button class="logout-button" onclick="handleLogout()">Sign Out</button>
+        </div>
+      `;
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      updateUserSection();
+      showLoginForm();
+    }
+
+    if (!currentUser) {
+      showLoginForm();
+    } else {
+      showMeterReader();
+    }
   </script>
 </body>
 </html>
