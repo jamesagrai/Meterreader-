@@ -3,112 +3,448 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enter Meter Reading - PC1 Oven</title>
+  <title>MeterReader+</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --background-color: #F5F5F7;
+      --card-background: #FFFFFF;
+      --text-primary: #1D1D1F;
+      --text-secondary: #86868B;
+      --accent-color: #007AFF;
+      --border-color: #E5E5E5;
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #ffffff;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Arial, sans-serif;
+      background: var(--background-color);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      color: var(--text-primary);
+      position: relative;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      background: rgba(245, 245, 247, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .branding {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .user-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .logout-button {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      font-weight: 500;
+    }
+
+    .main-container {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      margin-top: 4rem;
     }
-    .header {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #000000;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #222222;
-    }
-    p {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #555555;
-    }
-    input {
+
+    .container {
+      background: var(--card-background);
+      padding: 3rem;
+      border-radius: 20px;
       width: 90%;
-      max-width: 400px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #cccccc;
+      max-width: 440px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      font-size: 17px;
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .input-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--background-color);
+      color: var(--text-primary);
+      font-size: 17px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
       outline: none;
-      background: #f9f9f9;
-      color: #333333;
-      font-size: 16px;
-      margin-bottom: 15px;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
     }
+
     input::placeholder {
-      color: #888888;
+      color: var(--text-secondary);
     }
+
     button {
-      padding: 12px 20px;
+      width: 100%;
+      padding: 1.2rem;
       border: none;
-      border-radius: 8px;
-      background: #4caf50;
-      color: #ffffff;
+      border-radius: 12px;
+      background: var(--accent-color);
+      color: white;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 600;
-      transition: background 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
     }
+
     button:hover {
-      background: #087f23;
+      background: #0066DD;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .auth-toggle {
+      margin-top: 1rem;
+      color: var(--accent-color);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .auth-toggle button {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      font-weight: 500;
+      width: auto;
+    }
+
+    .error-message {
+      color: #FF3B30;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .success-animation {
+      animation: successPulse 0.5s ease-out;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #000000;
+        --card-background: #1C1C1E;
+        --text-primary: #FFFFFF;
+        --text-secondary: #98989D;
+        --border-color: #38383A;
+      }
+
+      .header {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      input {
+        background: #2C2C2E;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="header">MeterReader+</div>
-  <h1>Enter Meter Reading</h1>
-  <p>PC1 Oven</p>
-  <input type="number" id="reading" placeholder="Enter new reading" />
-  <button id="submit-reading">Submit Reading</button>
+  <div class="header">
+    <div class="branding">MeterReader+</div>
+    <div id="user-section"></div>
+  </div>
+  
+  <div class="main-container" id="main-content">
+    <!-- Content will be dynamically inserted here -->
+  </div>
 
   <script>
-    const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead'; // Replace with your API Gateway endpoint
+    const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
 
-    document.getElementById('submit-reading').addEventListener('click', async () => {
-      const reading = document.getElementById('reading').value;
-      if (reading) {
-        try {
-          const payload = {
-            meter: 'PC1 Oven', // Updated to match backend field name
-            reading: parseFloat(reading), // Ensure it's a number
-            timestamp: new Date().toISOString() // ISO format
-          };
+    // Get and validate oven ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const ovenId = urlParams.get('oven');
 
-          console.log('Payload:', payload); // Debugging line to verify the payload structure
+    // List of valid oven IDs
+    const validOvenIds = [
+      'CR-Coating-Incinerator',
+      'Conditioning-Room-Heater',
+      'LP-TOTAL-Corrector',
+      'LP-TOTAL-Main',
+      'PC1-Oven',
+      'PC2-Oven',
+      'PC3-Oven',
+      'PC4-Oven',
+      'PC5-Oven',
+      'PC6-Oven',
+      'PC7-Oven',
+      'RTO-1',
+      'RTO-2',
+      'SC1-Oven',
+      'SC2-Oven',
+      'SC3-Oven',
+      'SC4-Oven'
+    ];
 
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
+    if (!ovenId || !validOvenIds.includes(ovenId)) {
+      window.location.href = '/error.html';
+    }
 
-          if (response.ok) {
-            alert('Reading submitted successfully!');
-            window.location.href = 'qrscanner.html';
-          } else {
-            const error = await response.json();
-            alert(`Error submitting reading: ${error.message || 'Unknown error'}`);
+    // Function to convert URL-safe ID back to display name
+    function getDisplayName(ovenId) {
+      return ovenId.replace(/-/g, ' ');
+    }
+
+    // Cookie Management Functions
+    function setCookie(name, value, hours) {
+      const date = new Date();
+      date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+      const expires = "; expires=" + date.toUTCString();
+      document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) {
+          try {
+            return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+          } catch {
+            return null;
           }
-        } catch (error) {
-          alert(`Network error: ${error.message}`);
         }
-      } else {
-        alert('Please enter a reading');
       }
-    });
+      return null;
+    }
+
+    function deleteCookie(name) {
+      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
+    }
+    
+    // Store users in localStorage with admin as default
+    const defaultUsers = [
+      { username: 'admin', password: 'admin', name: 'Administrator' }
+    ];
+
+    // Initialize users in localStorage if not exist
+    if (!localStorage.getItem('users')) {
+      localStorage.setItem('users', JSON.stringify(defaultUsers));
+    }
+
+    let currentUser = getCookie('currentUser');
+    let isLoginMode = true;
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users') || '[]');
+    }
+
+    function addUser(user) {
+      const users = getUsers();
+      users.push(user);
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    function showAuthForm() {
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = `
+        <div class="container login-container">
+          <h1>${isLoginMode ? 'Sign In' : 'Create Account'}</h1>
+          <p>${isLoginMode ? 'Enter your credentials to continue' : 'Create a new account to get started'}</p>
+          ${!isLoginMode ? `
+            <div class="input-group">
+              <input type="text" id="name" placeholder="Full Name" autocomplete="name" />
+            </div>
+          ` : ''}
+          <div class="input-group">
+            <input type="text" id="username" placeholder="Username" autocomplete="username" />
+          </div>
+          <div class="input-group">
+            <input type="password" id="password" placeholder="Password" autocomplete="new-password" />
+          </div>
+          <div id="error-message" class="error-message"></div>
+          <button id="auth-button">${isLoginMode ? 'Sign In' : 'Create Account'}</button>
+          <div class="auth-toggle">
+            ${isLoginMode ? "Don't have an account? " : 'Already have an account? '}
+            <button onclick="toggleAuthMode()">${isLoginMode ? 'Create one' : 'Sign in'}</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('auth-button').addEventListener('click', isLoginMode ? handleLogin : handleCreateAccount);
+    }
+
+    function showMeterReader() {
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = `
+        <div class="container">
+          <h1>Enter Meter Reading</h1>
+          <p>${getDisplayName(ovenId)}</p>
+          <div class="input-group">
+            <input type="number" id="reading" placeholder="Enter reading (kWh)" />
+          </div>
+          <button id="submit-reading">Submit Reading</button>
+        </div>
+      `;
+      document.getElementById('submit-reading').addEventListener('click', handleSubmitReading);
+    }
+
+    function handleLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const users = getUsers();
+
+      const user = users.find(u => u.username === username && u.password === password);
+      if (user) {
+        setCookie('currentUser', user, 24);
+        currentUser = user;
+        showMeterReader();
+      } else {
+        document.getElementById('error-message').innerText = 'Invalid credentials. Please try again.';
+      }
+    }
+
+    function handleCreateAccount() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const name = isLoginMode ? null : document.getElementById('name').value;
+      
+      if (!name && !isLoginMode) {
+        document.getElementById('error-message').innerText = 'Full name is required for new accounts.';
+        return;
+      }
+      
+      addUser({ username, password, name });
+      setCookie('currentUser', { username, password, name }, 24);
+      currentUser = { username, password, name };
+      showMeterReader();
+    }
+
+    function handleSubmitReading() {
+      const reading = document.getElementById('reading').value;
+      if (!reading || isNaN(reading)) {
+        alert('Please enter a valid meter reading.');
+        return;
+      }
+
+      const meterReading = {
+        ovenId,
+        reading: parseFloat(reading),
+        user: currentUser.name || currentUser.username
+      };
+
+      submitReading(meterReading);
+    }
+
+    async function submitReading(meterReading) {
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(meterReading)
+        });
+
+        if (response.ok) {
+          document.getElementById('reading').value = '';
+          const container = document.querySelector('.container');
+          container.classList.add('success-animation');
+          setTimeout(() => {
+            container.classList.remove('success-animation');
+          }, 500);
+        } else {
+          alert('Error submitting meter reading');
+        }
+      } catch (error) {
+        console.error('Error submitting reading:', error);
+        alert('Failed to submit reading. Please try again later.');
+      }
+    }
+
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      showAuthForm();
+    }
+
+    if (currentUser) {
+      showMeterReader();
+    } else {
+      showAuthForm();
+    }
   </script>
 </body>
 </html>
