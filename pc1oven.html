@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeterReader+</title>
+  <title>MeterReader+ - Oven</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
@@ -13,6 +13,8 @@
       --text-secondary: #86868B;
       --accent-color: #007AFF;
       --border-color: #E5E5E5;
+      --header-background: #F1F1F1; /* Light grey */
+      --header-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px; /* Subtle shadow for premium look */
     }
 
     * {
@@ -43,13 +45,12 @@
       justify-content: space-between;
       align-items: center;
       z-index: 10;
-      background: rgba(245, 245, 247, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: var(--header-background);
+      box-shadow: var(--header-shadow);
     }
 
     .branding {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--text-primary);
       letter-spacing: -0.5px;
@@ -60,6 +61,7 @@
       align-items: center;
       gap: 1rem;
       font-size: 0.9rem;
+      color: var(--text-secondary);
     }
 
     .user-name {
@@ -72,9 +74,8 @@
       border: none;
       color: var(--accent-color);
       cursor: pointer;
+      padding: 0.5rem;
       font-size: 0.9rem;
-      padding: 0;
-      font-weight: 500;
     }
 
     .main-container {
@@ -100,6 +101,10 @@
     .container:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-container {
+      max-width: 360px;
     }
 
     h1 {
@@ -167,31 +172,6 @@
       transform: translateY(1px);
     }
 
-    .auth-toggle {
-      margin-top: 1rem;
-      color: var(--accent-color);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .auth-toggle button {
-      background: none;
-      border: none;
-      color: var(--accent-color);
-      cursor: pointer;
-      font-size: 0.9rem;
-      padding: 0;
-      font-weight: 500;
-      width: auto;
-    }
-
-    .error-message {
-      color: #FF3B30;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
     @keyframes successPulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.02); }
@@ -209,10 +189,13 @@
         --text-primary: #FFFFFF;
         --text-secondary: #98989D;
         --border-color: #38383A;
+        --header-background: #2C2C2E; /* Darker header for dark mode */
+        --header-shadow: rgba(0, 0, 0, 0.3) 0px 4px 6px;
       }
 
       .header {
-        background: rgba(0, 0, 0, 0.8);
+        background: var(--header-background);
+        box-shadow: var(--header-shadow);
       }
 
       input {
@@ -224,7 +207,9 @@
 <body>
   <div class="header">
     <div class="branding">MeterReader+</div>
-    <div id="user-section"></div>
+    <div id="user-section">
+      <!-- User info and logout button will go here -->
+    </div>
   </div>
   
   <div class="main-container" id="main-content">
@@ -233,217 +218,144 @@
 
   <script>
     const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
+    const ovens = [
+      'CR Coating Incinerator', 'Conditioning Room Heater', 'LP TOTAL (Corrector Reading)', 'LP TOTAL (Main)', 
+      'PC1 Oven', 'PC2 Oven', 'PC3 Oven', 'PC4 Oven', 'PC5 Oven', 'PC6 Oven', 'PC7 Oven', 'RTO 1', 'RTO 2',
+      'SC1 Oven', 'SC2 Oven', 'SC3 Oven', 'SC4 Oven'
+    ];
 
-    // Get and validate oven ID
+    let currentUser = null;
+    let currentOven = null;
+
+    // Checking URL for oven information (simulate QR code scan)
     const urlParams = new URLSearchParams(window.location.search);
-    const ovenId = urlParams.get('oven');
+    currentOven = urlParams.get('oven') || null;
 
-    // List of valid oven IDs
-    const validOvenIds = [
-      'CR-Coating-Incinerator',
-      'Conditioning-Room-Heater',
-      'LP-TOTAL-Corrector',
-      'LP-TOTAL-Main',
-      'PC1-Oven',
-      'PC2-Oven',
-      'PC3-Oven',
-      'PC4-Oven',
-      'PC5-Oven',
-      'PC6-Oven',
-      'PC7-Oven',
-      'RTO-1',
-      'RTO-2',
-      'SC1-Oven',
-      'SC2-Oven',
-      'SC3-Oven',
-      'SC4-Oven'
+    // Only one user (admin) now
+    const users = [
+      { username: 'admin', password: 'admin', name: 'Admin' }
     ];
 
-    if (!ovenId || !validOvenIds.includes(ovenId)) {
-      window.location.href = '/error.html';
-    }
-
-    // Function to convert URL-safe ID back to display name
-    function getDisplayName(ovenId) {
-      return ovenId.replace(/-/g, ' ');
-    }
-
-    // Cookie Management Functions
-    function setCookie(name, value, hours) {
-      const date = new Date();
-      date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
-      const expires = "; expires=" + date.toUTCString();
-      document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + expires + "; path=/";
-    }
-
-    function getCookie(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) {
-          try {
-            return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
-          } catch {
-            return null;
-          }
-        }
-      }
-      return null;
-    }
-
-    function deleteCookie(name) {
-      document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/';
-    }
-    
-    // Store users in localStorage with admin as default
-    const defaultUsers = [
-      { username: 'admin', password: 'admin', name: 'Administrator' }
-    ];
-
-    // Initialize users in localStorage if not exist
-    if (!localStorage.getItem('users')) {
-      localStorage.setItem('users', JSON.stringify(defaultUsers));
-    }
-
-    let currentUser = getCookie('currentUser');
-    let isLoginMode = true;
-
-    function getUsers() {
-      return JSON.parse(localStorage.getItem('users') || '[]');
-    }
-
-    function addUser(user) {
-      const users = getUsers();
-      users.push(user);
-      localStorage.setItem('users', JSON.stringify(users));
-    }
-
-    function showAuthForm() {
+    function showLoginForm() {
       const mainContent = document.getElementById('main-content');
       mainContent.innerHTML = `
         <div class="container login-container">
-          <h1>${isLoginMode ? 'Sign In' : 'Create Account'}</h1>
-          <p>${isLoginMode ? 'Enter your credentials to continue' : 'Create a new account to get started'}</p>
-          ${!isLoginMode ? `
-            <div class="input-group">
-              <input type="text" id="name" placeholder="Full Name" autocomplete="name" />
-            </div>
-          ` : ''}
+          <h1>Sign In</h1>
+          <p>Enter your credentials to continue</p>
           <div class="input-group">
             <input type="text" id="username" placeholder="Username" autocomplete="username" />
           </div>
           <div class="input-group">
-            <input type="password" id="password" placeholder="Password" autocomplete="new-password" />
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
           </div>
-          <div id="error-message" class="error-message"></div>
-          <button id="auth-button">${isLoginMode ? 'Sign In' : 'Create Account'}</button>
-          <div class="auth-toggle">
-            ${isLoginMode ? "Don't have an account? " : 'Already have an account? '}
-            <button onclick="toggleAuthMode()">${isLoginMode ? 'Create one' : 'Sign in'}</button>
-          </div>
+          <button id="login-button">Sign In</button>
         </div>
       `;
 
-      document.getElementById('auth-button').addEventListener('click', isLoginMode ? handleLogin : handleCreateAccount);
+      document.getElementById('login-button').addEventListener('click', handleLogin);
     }
 
     function showMeterReader() {
       const mainContent = document.getElementById('main-content');
+      if (!currentOven || !ovens.includes(currentOven)) {
+        mainContent.innerHTML = `
+          <p style="color: red; font-weight: bold;">This page is for ${currentOven} Oven.</p>
+        `;
+        return;
+      }
       mainContent.innerHTML = `
         <div class="container">
-          <h1>Enter Meter Reading</h1>
-          <p>${getDisplayName(ovenId)}</p>
+          <h1>Enter Meter Reading for ${currentOven}</h1>
+          <p>${currentOven}</p>
           <div class="input-group">
-            <input type="number" id="reading" placeholder="Enter reading (kWh)" />
+            <input type="number" id="reading" placeholder="Enter new reading" autocomplete="off" />
           </div>
           <button id="submit-reading">Submit Reading</button>
+          <p id="success-message" style="display: none; color: green; font-weight: bold;"></p>
         </div>
       `;
+
       document.getElementById('submit-reading').addEventListener('click', handleSubmitReading);
     }
 
-    function handleLogin() {
+    function updateUserSection() {
+      const userSection = document.getElementById('user-section');
+      if (currentUser) {
+        userSection.innerHTML = `
+          <div class="user-info">
+            <span class="user-name">${currentUser.name}</span>
+            <button class="logout-button" onclick="handleLogout()">Sign Out</button>
+          </div>
+        `;
+      } else {
+        userSection.innerHTML = '';
+      }
+    }
+
+    async function handleLogin() {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      const users = getUsers();
-
+      
       const user = users.find(u => u.username === username && u.password === password);
+      
       if (user) {
-        setCookie('currentUser', user, 24);
         currentUser = user;
+        updateUserSection();
         showMeterReader();
       } else {
-        document.getElementById('error-message').innerText = 'Invalid credentials. Please try again.';
+        alert('Invalid username or password');
       }
     }
 
-    function handleCreateAccount() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const name = isLoginMode ? null : document.getElementById('name').value;
-      
-      if (!name && !isLoginMode) {
-        document.getElementById('error-message').innerText = 'Full name is required for new accounts.';
-        return;
-      }
-      
-      addUser({ username, password, name });
-      setCookie('currentUser', { username, password, name }, 24);
-      currentUser = { username, password, name };
-      showMeterReader();
+    function handleLogout() {
+      currentUser = null;
+      updateUserSection();
+      showLoginForm();
     }
 
-    function handleSubmitReading() {
+    async function handleSubmitReading() {
       const reading = document.getElementById('reading').value;
-      if (!reading || isNaN(reading)) {
-        alert('Please enter a valid meter reading.');
-        return;
-      }
+      if (reading) {
+        try {
+          const button = document.getElementById('submit-reading');
+          button.style.pointerEvents = 'none';
+          button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+          
+          const payload = {
+            meter: currentOven,
+            reading: parseFloat(reading),
+            timestamp: new Date().toISOString()
+          };
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
 
-      const meterReading = {
-        ovenId,
-        reading: parseFloat(reading),
-        user: currentUser.name || currentUser.username
-      };
-
-      submitReading(meterReading);
-    }
-
-    async function submitReading(meterReading) {
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(meterReading)
-        });
-
-        if (response.ok) {
-          document.getElementById('reading').value = '';
-          const container = document.querySelector('.container');
-          container.classList.add('success-animation');
-          setTimeout(() => {
-            container.classList.remove('success-animation');
-          }, 500);
-        } else {
-          alert('Error submitting meter reading');
+          if (response.ok) {
+            const successMessage = document.getElementById('success-message');
+            successMessage.style.display = 'block';
+            successMessage.innerHTML = `Meter reading for ${currentOven} successfully submitted!`;
+            successMessage.classList.add('success-animation');
+          } else {
+            alert('Failed to submit reading');
+          }
+          
+          button.style.pointerEvents = 'auto';
+          button.innerHTML = 'Submit Reading';
+        } catch (error) {
+          alert('Error occurred while submitting reading');
         }
-      } catch (error) {
-        console.error('Error submitting reading:', error);
-        alert('Failed to submit reading. Please try again later.');
+      } else {
+        alert('Please enter a reading');
       }
     }
 
-    function toggleAuthMode() {
-      isLoginMode = !isLoginMode;
-      showAuthForm();
-    }
-
-    if (currentUser) {
-      showMeterReader();
+    if (!currentUser) {
+      showLoginForm();
     } else {
-      showAuthForm();
+      showMeterReader();
     }
   </script>
 </body>
