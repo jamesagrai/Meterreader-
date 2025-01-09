@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeterReader+ - Oven</title>
+  <title>MeterReader+ - PC1 Oven</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
@@ -98,15 +98,6 @@
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .container:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    }
-
-    .login-container {
-      max-width: 360px;
-    }
-
     h1 {
       font-size: 32px;
       font-weight: 700;
@@ -171,37 +162,6 @@
     button:active {
       transform: translateY(1px);
     }
-
-    @keyframes successPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    .success-animation {
-      animation: successPulse 0.5s ease-out;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --background-color: #000000;
-        --card-background: #1C1C1E;
-        --text-primary: #FFFFFF;
-        --text-secondary: #98989D;
-        --border-color: #38383A;
-        --header-background: #2C2C2E; /* Darker header for dark mode */
-        --header-shadow: rgba(0, 0, 0, 0.3) 0px 4px 6px;
-      }
-
-      .header {
-        background: var(--header-background);
-        box-shadow: var(--header-shadow);
-      }
-
-      input {
-        background: #2C2C2E;
-      }
-    }
   </style>
 </head>
 <body>
@@ -218,23 +178,12 @@
 
   <script>
     const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
-    const ovens = [
-      'CR Coating Incinerator', 'Conditioning Room Heater', 'LP TOTAL (Corrector Reading)', 'LP TOTAL (Main)', 
-      'PC1 Oven', 'PC2 Oven', 'PC3 Oven', 'PC4 Oven', 'PC5 Oven', 'PC6 Oven', 'PC7 Oven', 'RTO 1', 'RTO 2',
-      'SC1 Oven', 'SC2 Oven', 'SC3 Oven', 'SC4 Oven'
-    ];
+    const currentOven = 'PC1 Oven';
 
-    let currentUser = null;
-    let currentOven = null;
-
-    // Checking URL for oven information (simulate QR code scan)
-    const urlParams = new URLSearchParams(window.location.search);
-    currentOven = urlParams.get('oven') || null;
-
-    // Only one user (admin) now
     const users = [
       { username: 'admin', password: 'admin', name: 'Admin' }
     ];
+    let currentUser = null;
 
     function showLoginForm() {
       const mainContent = document.getElementById('main-content');
@@ -251,22 +200,14 @@
           <button id="login-button">Sign In</button>
         </div>
       `;
-
       document.getElementById('login-button').addEventListener('click', handleLogin);
     }
 
     function showMeterReader() {
       const mainContent = document.getElementById('main-content');
-      if (!currentOven || !ovens.includes(currentOven)) {
-        mainContent.innerHTML = `
-          <p style="color: red; font-weight: bold;">This page is for ${currentOven} Oven.</p>
-        `;
-        return;
-      }
       mainContent.innerHTML = `
         <div class="container">
           <h1>Enter Meter Reading for ${currentOven}</h1>
-          <p>${currentOven}</p>
           <div class="input-group">
             <input type="number" id="reading" placeholder="Enter new reading" autocomplete="off" />
           </div>
@@ -275,58 +216,20 @@
         </div>
       `;
 
-      document.getElementById('submit-reading').addEventListener('click', handleSubmitReading);
-    }
+      document.getElementById('submit-reading').addEventListener('click', async () => {
+        const reading = document.getElementById('reading').value;
+        if (!reading) {
+          alert('Please enter a reading');
+          return;
+        }
 
-    function updateUserSection() {
-      const userSection = document.getElementById('user-section');
-      if (currentUser) {
-        userSection.innerHTML = `
-          <div class="user-info">
-            <span class="user-name">${currentUser.name}</span>
-            <button class="logout-button" onclick="handleLogout()">Sign Out</button>
-          </div>
-        `;
-      } else {
-        userSection.innerHTML = '';
-      }
-    }
-
-    async function handleLogin() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      
-      const user = users.find(u => u.username === username && u.password === password);
-      
-      if (user) {
-        currentUser = user;
-        updateUserSection();
-        showMeterReader();
-      } else {
-        alert('Invalid username or password');
-      }
-    }
-
-    function handleLogout() {
-      currentUser = null;
-      updateUserSection();
-      showLoginForm();
-    }
-
-    async function handleSubmitReading() {
-      const reading = document.getElementById('reading').value;
-      if (reading) {
         try {
-          const button = document.getElementById('submit-reading');
-          button.style.pointerEvents = 'none';
-          button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-          
           const payload = {
             meter: currentOven,
             reading: parseFloat(reading),
             timestamp: new Date().toISOString()
           };
-          
+
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -334,22 +237,46 @@
           });
 
           if (response.ok) {
-            const successMessage = document.getElementById('success-message');
-            successMessage.style.display = 'block';
-            successMessage.innerHTML = `Meter reading for ${currentOven} successfully submitted!`;
-            successMessage.classList.add('success-animation');
+            document.getElementById('success-message').innerText = `Reading submitted for ${currentOven}!`;
+            document.getElementById('success-message').style.display = 'block';
           } else {
-            alert('Failed to submit reading');
+            alert('Failed to submit the reading');
           }
-          
-          button.style.pointerEvents = 'auto';
-          button.innerHTML = 'Submit Reading';
         } catch (error) {
-          alert('Error occurred while submitting reading');
+          alert('Error while submitting the reading');
         }
+      });
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        currentUser = user;
+        updateUserSection();
+        showMeterReader();
       } else {
-        alert('Please enter a reading');
+        alert('Invalid credentials');
       }
+    }
+
+    function updateUserSection() {
+      const userSection = document.getElementById('user-section');
+      userSection.innerHTML = `
+        <div class="user-info">
+          <span class="user-name">${currentUser.name}</span>
+          <button class="logout-button" onclick="handleLogout()">Sign Out</button>
+        </div>
+      `;
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      updateUserSection();
+      showLoginForm();
     }
 
     if (!currentUser) {
@@ -360,4 +287,5 @@
   </script>
 </body>
 </html>
+
 
