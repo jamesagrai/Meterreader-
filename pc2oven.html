@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeterReader+ - PC2 Oven</title>
+  <title>PC2 Oven - MeterReader+</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
@@ -13,8 +13,6 @@
       --text-secondary: #86868B;
       --accent-color: #007AFF;
       --border-color: #E5E5E5;
-      --header-background: #F1F1F1; /* Light grey */
-      --header-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px; /* Subtle shadow for premium look */
     }
 
     * {
@@ -31,8 +29,6 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      color: var(--text-primary);
-      position: relative;
     }
 
     .header {
@@ -44,16 +40,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
-      background: var(--header-background);
-      box-shadow: var(--header-shadow);
+      background: rgba(245, 245, 247, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .branding {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 700;
       color: var(--text-primary);
-      letter-spacing: -0.5px;
     }
 
     .user-info {
@@ -61,11 +58,9 @@
       align-items: center;
       gap: 1rem;
       font-size: 0.9rem;
-      color: var(--text-secondary);
     }
 
     .user-name {
-      font-weight: 500;
       color: var(--text-primary);
     }
 
@@ -74,120 +69,152 @@
       border: none;
       color: var(--accent-color);
       cursor: pointer;
-      padding: 0.5rem;
+      padding: 0;
       font-size: 0.9rem;
     }
 
     .main-container {
+      margin-top: 5rem;
       flex: 1;
       display: flex;
-      align-items: center;
       justify-content: center;
-      margin-top: 4rem;
+      align-items: center;
+      padding: 1rem;
     }
 
     .container {
       background: var(--card-background);
-      padding: 3rem;
+      padding: 2rem;
       border-radius: 20px;
-      width: 90%;
-      max-width: 440px;
-      text-align: center;
-      position: relative;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container {
+      max-width: 360px;
     }
 
     h1 {
-      font-size: 32px;
-      font-weight: 700;
+      font-size: 24px;
       margin-bottom: 0.5rem;
       color: var(--text-primary);
-      letter-spacing: -0.5px;
+      text-align: center;
     }
 
     p {
       font-size: 17px;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       color: var(--text-secondary);
-      font-weight: 400;
+      text-align: center;
     }
 
     .input-group {
       margin-bottom: 1rem;
-      position: relative;
     }
 
     input {
       width: 100%;
-      padding: 1.2rem 1.5rem;
-      border-radius: 12px;
+      padding: 12px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
       background: var(--background-color);
+      font-size: 16px;
       color: var(--text-primary);
-      font-size: 17px;
-      transition: all 0.3s ease;
     }
 
     input:focus {
       outline: none;
       border-color: var(--accent-color);
-      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-    }
-
-    input::placeholder {
-      color: var(--text-secondary);
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
     }
 
     button {
       width: 100%;
-      padding: 1.2rem;
+      padding: 12px;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
       background: var(--accent-color);
       color: white;
-      cursor: pointer;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
 
     button:hover {
-      background: #0066DD;
-      transform: translateY(-1px);
+      background: #0055CC;
     }
 
-    button:active {
-      transform: translateY(1px);
+    .error-message {
+      color: #FF3B30;
+      font-size: 14px;
+      margin-top: 0.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #000000;
+        --card-background: #1C1C1E;
+        --text-primary: #FFFFFF;
+        --text-secondary: #98989D;
+        --border-color: #38383A;
+      }
+
+      .header {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      input {
+        background: #2C2C2E;
+      }
     }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="branding">MeterReader+</div>
-    <div id="user-section">
-      <!-- User info and logout button will go here -->
-    </div>
+    <div id="user-section"></div>
   </div>
-  
+
   <div class="main-container" id="main-content">
     <!-- Content will be dynamically inserted here -->
   </div>
 
   <script>
     const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
-    const currentOven = 'PC1 Oven';
+    
+    // Session management
+    function setCookie(name, value, hours) {
+      const date = new Date();
+      date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+      document.cookie = `${name}=${JSON.stringify(value)};expires=${date.toUTCString()};path=/`;
+    }
 
-    const users = [
-      { username: 'admin', password: 'admin', name: 'Admin' }
-    ];
-    let currentUser = null;
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        try {
+          return JSON.parse(parts.pop().split(';').shift());
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    }
 
-    function showLoginForm() {
-      const mainContent = document.getElementById('main-content');
-      mainContent.innerHTML = `
+    function deleteCookie(name) {
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
+    }
+
+    let currentUser = getCookie('currentUser');
+
+    function showLogin() {
+      const container = document.getElementById('main-content');
+      container.innerHTML = `
         <div class="container login-container">
           <h1>Sign In</h1>
           <p>Enter your credentials to continue</p>
@@ -195,95 +222,117 @@
             <input type="text" id="username" placeholder="Username" autocomplete="username" />
           </div>
           <div class="input-group">
-            <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+            <input type="password" id="password" placeholder="Password" />
           </div>
+          <div id="error-message" class="error-message"></div>
           <button id="login-button">Sign In</button>
         </div>
       `;
+
       document.getElementById('login-button').addEventListener('click', handleLogin);
     }
 
     function showMeterReader() {
-      const mainContent = document.getElementById('main-content');
-      mainContent.innerHTML = `
+      const container = document.getElementById('main-content');
+      container.innerHTML = `
         <div class="container">
-          <h1>Enter Meter Reading for ${currentOven}</h1>
+          <h1>Enter Meter Reading</h1>
+          <p>PC1 Oven</p>
           <div class="input-group">
-            <input type="number" id="reading" placeholder="Enter new reading" autocomplete="off" />
+            <input type="number" id="reading" placeholder="Enter new reading" />
           </div>
           <button id="submit-reading">Submit Reading</button>
-          <p id="success-message" style="display: none; color: green; font-weight: bold;"></p>
         </div>
       `;
 
-      document.getElementById('submit-reading').addEventListener('click', async () => {
-        const reading = document.getElementById('reading').value;
-        if (!reading) {
-          alert('Please enter a reading');
-          return;
-        }
+      document.getElementById('submit-reading').addEventListener('click', handleSubmitReading);
+    }
 
-        try {
-          const payload = {
-            meter: currentOven,
-            reading: parseFloat(reading),
-            timestamp: new Date().toISOString()
-          };
-
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (response.ok) {
-            document.getElementById('success-message').innerText = `Reading submitted for ${currentOven}!`;
-            document.getElementById('success-message').style.display = 'block';
-          } else {
-            alert('Failed to submit the reading');
-          }
-        } catch (error) {
-          alert('Error while submitting the reading');
-        }
-      });
+    function updateUserSection() {
+      const userSection = document.getElementById('user-section');
+      if (currentUser) {
+        userSection.innerHTML = `
+          <div class="user-info">
+            <span class="user-name">${currentUser.name}</span>
+            <button class="logout-button" onclick="handleLogout()">Sign Out</button>
+          </div>
+        `;
+      } else {
+        userSection.innerHTML = '';
+      }
     }
 
     async function handleLogin() {
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-
-      const user = users.find(u => u.username === username && u.password === password);
-
-      if (user) {
-        currentUser = user;
+      const errorElement = document.getElementById('error-message');
+      
+      // Simple admin check (in reality, this should be server-side)
+      if (username === 'admin' && password === 'admin') {
+        currentUser = { username: 'admin', name: 'Administrator' };
+        setCookie('currentUser', currentUser, 1); // 1 hour session
         updateUserSection();
         showMeterReader();
+        errorElement.style.display = 'none';
       } else {
-        alert('Invalid credentials');
+        errorElement.textContent = 'Invalid username or password';
+        errorElement.style.display = 'block';
       }
-    }
-
-    function updateUserSection() {
-      const userSection = document.getElementById('user-section');
-      userSection.innerHTML = `
-        <div class="user-info">
-          <span class="user-name">${currentUser.name}</span>
-          <button class="logout-button" onclick="handleLogout()">Sign Out</button>
-        </div>
-      `;
     }
 
     function handleLogout() {
       currentUser = null;
+      deleteCookie('currentUser');
       updateUserSection();
-      showLoginForm();
+      showLogin();
     }
 
-    if (!currentUser) {
-      showLoginForm();
-    } else {
-      showMeterReader();
+    async function handleSubmitReading() {
+      const reading = document.getElementById('reading').value;
+      if (reading) {
+        try {
+          const payload = {
+            meter: 'PC1 Oven',
+            reading: parseFloat(reading),
+            timestamp: new Date().toISOString(),
+            user: currentUser.username
+          };
+          
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          if (response.ok) {
+            alert('Reading submitted successfully!');
+            document.getElementById('reading').value = '';
+          } else {
+            const error = await response.json();
+            alert(`Error submitting reading: ${error.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          alert(`Network error: ${error.message}`);
+        }
+      } else {
+        alert('Please enter a reading');
+      }
     }
+
+    // Initialize the app
+    function initializeApp() {
+      updateUserSection();
+      if (currentUser) {
+        showMeterReader();
+      } else {
+        showLogin();
+      }
+    }
+
+    // Start the application
+    initializeApp();
   </script>
 </body>
 </html>
