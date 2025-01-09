@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PC2 Oven - MeterReader+</title>
+  <title>PC5 Oven - MeterReader+</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     :root {
@@ -237,7 +237,7 @@
       container.innerHTML = `
         <div class="container">
           <h1>Enter Meter Reading</h1>
-          <p>PC2 Oven</p>
+          <p>PC5 Oven</p>
           <div class="input-group">
             <input type="number" id="reading" placeholder="Enter new reading" />
           </div>
@@ -292,7 +292,7 @@
       if (reading) {
         try {
           const payload = {
-            meter: 'PC2 Oven',
+            meter: 'PC5 Oven',
             reading: parseFloat(reading),
             timestamp: new Date().toISOString(),
             user: currentUser.username
