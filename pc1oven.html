@@ -70,16 +70,20 @@
       const reading = document.getElementById('reading').value;
       if (reading) {
         try {
+          const payload = {
+            meter: 'PC1 Oven', // Updated to match backend field name
+            reading: parseFloat(reading), // Ensure it's a number
+            timestamp: new Date().toISOString() // ISO format
+          };
+
+          console.log('Payload:', payload); // Debugging line to verify the payload structure
+
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              meterId: 'PC1 Oven',
-              reading: parseFloat(reading),
-              timestamp: new Date().toISOString()
-            })
+            body: JSON.stringify(payload)
           });
 
           if (response.ok) {
@@ -99,3 +103,4 @@
   </script>
 </body>
 </html>
+
