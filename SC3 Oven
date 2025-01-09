@@ -3,88 +3,312 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enter Meter Reading - SC3 Oven</title>
+  <title>SC3 Oven - MeterReader+</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --background-color: #F5F5F7;
+      --card-background: #FFFFFF;
+      --text-primary: #1D1D1F;
+      --text-secondary: #86868B;
+      --accent-color: #007AFF;
+      --border-color: #E5E5E5;
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background: #ffffff;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Arial, sans-serif;
+      background: var(--background-color);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
     }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(245, 245, 247, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 100;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .branding {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .user-name {
+      color: var(--text-primary);
+    }
+
+    .logout-button {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+
+    .main-container {
+      margin-top: 5rem;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .container {
+      background: var(--card-background);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container {
+      max-width: 360px;
+    }
+
     h1 {
       font-size: 24px;
-      margin-bottom: 10px;
-      color: #222222;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      text-align: center;
     }
+
     p {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #555555;
+      font-size: 17px;
+      margin-bottom: 1.5rem;
+      color: var(--text-secondary);
+      text-align: center;
     }
+
+    .input-group {
+      margin-bottom: 1rem;
+    }
+
     input {
-      width: 90%;
-      max-width: 400px;
+      width: 100%;
       padding: 12px;
       border-radius: 8px;
-      border: 1px solid #cccccc;
-      outline: none;
-      background: #f9f9f9;
-      color: #333333;
+      border: 1px solid var(--border-color);
+      background: var(--background-color);
       font-size: 16px;
-      margin-bottom: 15px;
+      color: var(--text-primary);
     }
-    input::placeholder {
-      color: #888888;
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
     }
+
     button {
-      padding: 12px 20px;
+      width: 100%;
+      padding: 12px;
       border: none;
       border-radius: 8px;
-      background: #4caf50;
-      color: #ffffff;
-      cursor: pointer;
+      background: var(--accent-color);
+      color: white;
       font-size: 16px;
       font-weight: 600;
-      transition: background 0.3s ease;
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
+
     button:hover {
-      background: #087f23;
+      background: #0055CC;
+    }
+
+    .error-message {
+      color: #FF3B30;
+      font-size: 14px;
+      margin-top: 0.5rem;
+      text-align: center;
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background-color: #000000;
+        --card-background: #1C1C1E;
+        --text-primary: #FFFFFF;
+        --text-secondary: #98989D;
+        --border-color: #38383A;
+      }
+
+      .header {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      input {
+        background: #2C2C2E;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Enter Meter Reading</h1>
-  <p>SC3 Oven</p>
-  <input type="number" id="reading" placeholder="Enter new reading" />
-  <button id="submit-reading">Submit Reading</button>
+  <div class="header">
+    <div class="branding">MeterReader+</div>
+    <div id="user-section"></div>
+  </div>
+
+  <div class="main-container" id="main-content">
+    <!-- Content will be dynamically inserted here -->
+  </div>
 
   <script>
-    const apiUrl = 'https://your-api-gateway-endpoint.amazonaws.com/prod/meter-reading'; // Replace with your API Gateway endpoint
+    const apiUrl = 'https://5a6tilfrta.execute-api.eu-west-2.amazonaws.com/default/sendMeterRead';
+    
+    // Session management
+    function setCookie(name, value, hours) {
+      const date = new Date();
+      date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+      document.cookie = `${name}=${JSON.stringify(value)};expires=${date.toUTCString()};path=/`;
+    }
 
-    document.getElementById('submit-reading').addEventListener('click', async () => {
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        try {
+          return JSON.parse(parts.pop().split(';').shift());
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    }
+
+    function deleteCookie(name) {
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/`;
+    }
+
+    let currentUser = getCookie('currentUser');
+
+    function showLogin() {
+      const container = document.getElementById('main-content');
+      container.innerHTML = `
+        <div class="container login-container">
+          <h1>Sign In</h1>
+          <p>Enter your credentials to continue</p>
+          <div class="input-group">
+            <input type="text" id="username" placeholder="Username" autocomplete="username" />
+          </div>
+          <div class="input-group">
+            <input type="password" id="password" placeholder="Password" />
+          </div>
+          <div id="error-message" class="error-message"></div>
+          <button id="login-button">Sign In</button>
+        </div>
+      `;
+
+      document.getElementById('login-button').addEventListener('click', handleLogin);
+    }
+
+    function showMeterReader() {
+      const container = document.getElementById('main-content');
+      container.innerHTML = `
+        <div class="container">
+          <h1>Enter Meter Reading</h1>
+          <p>SC3 Oven</p>
+          <div class="input-group">
+            <input type="number" id="reading" placeholder="Enter new reading" />
+          </div>
+          <button id="submit-reading">Submit Reading</button>
+        </div>
+      `;
+
+      document.getElementById('submit-reading').addEventListener('click', handleSubmitReading);
+    }
+
+    function updateUserSection() {
+      const userSection = document.getElementById('user-section');
+      if (currentUser) {
+        userSection.innerHTML = `
+          <div class="user-info">
+            <span class="user-name">${currentUser.name}</span>
+            <button class="logout-button" onclick="handleLogout()">Sign Out</button>
+          </div>
+        `;
+      } else {
+        userSection.innerHTML = '';
+      }
+    }
+
+    async function handleLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('error-message');
+      
+      // Simple admin check (in reality, this should be server-side)
+      if (username === 'admin' && password === 'admin') {
+        currentUser = { username: 'admin', name: 'Administrator' };
+        setCookie('currentUser', currentUser, 1); // 1 hour session
+        updateUserSection();
+        showMeterReader();
+        errorElement.style.display = 'none';
+      } else {
+        errorElement.textContent = 'Invalid username or password';
+        errorElement.style.display = 'block';
+      }
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      deleteCookie('currentUser');
+      updateUserSection();
+      showLogin();
+    }
+
+    async function handleSubmitReading() {
       const reading = document.getElementById('reading').value;
       if (reading) {
         try {
+          const payload = {
+            meter: 'SC3 Oven',
+            reading: parseFloat(reading),
+            timestamp: new Date().toISOString(),
+            user: currentUser.username
+          };
+          
           const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              meterId: 'SC3 Oven',
-              reading: parseFloat(reading),
-              timestamp: new Date().toISOString()
-            })
+            body: JSON.stringify(payload)
           });
-
+          
           if (response.ok) {
             alert('Reading submitted successfully!');
-            window.location.href = 'qrscanner.html';
+            document.getElementById('reading').value = '';
           } else {
             const error = await response.json();
             alert(`Error submitting reading: ${error.message || 'Unknown error'}`);
@@ -95,8 +319,20 @@
       } else {
         alert('Please enter a reading');
       }
-    });
+    }
+
+    // Initialize the app
+    function initializeApp() {
+      updateUserSection();
+      if (currentUser) {
+        showMeterReader();
+      } else {
+        showLogin();
+      }
+    }
+
+    // Start the application
+    initializeApp();
   </script>
 </body>
 </html>
-
