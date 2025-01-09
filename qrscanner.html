@@ -56,12 +56,22 @@
     const videoElement = document.getElementById('video');
     const button = document.getElementById('start-scan');
 
-    button.addEventListener('click', () => {
-      const scanner = new QrScanner(videoElement, (result) => {
-        alert(`Scanned QR Code: ${result}`);
-        window.location.href = `meterentry.html?meterId=${result}`;
-      });
-      scanner.start();
+    button.addEventListener('click', async () => {
+      try {
+        // Ensure the QR Scanner library is loaded
+        QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner/qr-scanner-worker.min.js';
+
+        const scanner = new QrScanner(videoElement, (result) => {
+          alert(`Scanned QR Code: ${result}`);
+          window.location.href = `meterentry.html?meterId=${result}`;
+          scanner.stop(); // Stop scanning after detecting the QR code
+        });
+
+        await scanner.start();
+      } catch (error) {
+        alert(`Error starting scanner: ${error.message}`);
+        console.error(error);
+      }
     });
   </script>
 </body>
