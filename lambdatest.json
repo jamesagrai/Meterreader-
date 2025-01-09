@@ -1,0 +1,4 @@
+{
+  "httpMethod": "POST",
+  "body": "{\"timestamp\":\"01/09/2017  00:00:00\",\"meter\":\"PC1 Oven\",\"reading\":\"9628566.978\"}"
+}
